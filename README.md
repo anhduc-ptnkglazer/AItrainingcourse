@@ -1,2 +1,1 @@
-# AItrainingcourse
-Anything
+
