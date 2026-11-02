@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Academic Reading CBT Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: text;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .split-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            background-color: #ffffff;
+        }
+
+        .resizer {
+            width: 10px;
+            background-color: #e2e2e2;
+            cursor: col-resize;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            z-index: 20;
+        }
+        .resizer-icon {
+            width: 16px;
+            height: 20px;
+            background: #fff;
+            border: 1px solid #888;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #333;
+        }
+
+        .scroll-panel {
+            overflow-y: auto;
+            height: 100%;
+            padding: 20px 25px;
+        }
+
+        .scroll-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scroll-panel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .scroll-panel::-webkit-scrollbar-thumb {
+            background: #aaa;
+            border-radius: 2px;
+        }
+
+        /* TABLES */
+        .ielts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            border: 1px solid #000;
+        }
+        .ielts-table th {
+            border-bottom: 2px solid #000;
+            border-left: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+        .ielts-table td {
+            border-bottom: 1px solid #ccc;
+            border-left: 1px solid #ccc;
+            padding: 8px;
+            vertical-align: middle;
+        }
+        .ielts-table td.q-text-cell {
+            border-left: none;
+            padding-right: 15px;
+        }
+        .ielts-table td.radio-cell {
+            text-align: center;
+            width: 45px;
+        }
+        .ielts-table input[type="radio"] {
+            width: 17px;
+            height: 17px;
+            cursor: pointer;
+        }
+
+        /* DRAG AND DROP */
+        .drop-zone {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            height: 30px;
+            border: 2px dashed #0056b3;
+            background-color: #f0f7ff;
+            border-radius: 4px;
+            margin: 0 4px;
+            vertical-align: middle;
+            padding: 2px 6px;
+        }
+        .drop-zone.has-item {
+            border-style: solid;
+            background-color: #e8f4fe;
+        }
+
+        .drag-options-box {
+            background: #f4f4f4;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .drag-item {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: #ffffff;
+            border: 1px solid #333;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: grab;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+            user-select: none;
+            font-size: 13px;
+        }
+
+        /* FOOTER NAV */
+        .footer-q-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 25px;
+            height: 25px;
+            margin: 0 2px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            background-color: transparent;
+        }
+        .footer-q-num:hover {
+            background-color: #d8d8d8;
+        }
+        .footer-q-num.active {
+            border: 2px solid #0056b3 !important;
+            background-color: #ffffff;
+            color: #0056b3;
+        }
+        .footer-q-num.answered {
+            background-color: #28a745 !important;
+            color: #ffffff !important;
+        }
+
+        .q-number-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border: 1px solid #0056b3;
+            color: #0056b3;
+            font-weight: bold;
+            margin-right: 8px;
+            font-size: 12px;
+            background-color: #fff;
+        }
+
+        /* USER HIGHLIGHT STYLE */
+        .user-highlight {
+            background-color: #fff066;
+            color: #000;
+        }
+
+        /* INSIGHT HIGHLIGHT STYLE (Chỉ dùng sau khi nộp bài) */
+        .insight-target {
+            background-color: #ffeb3b !important;
+            border-bottom: 2px solid #d32f2f !important;
+            font-weight: bold;
+            padding: 2px;
+        }
+
+        /* CONTEXT HIGHLIGHT MENU */
+        #user-hl-menu {
+            position: absolute;
+            z-index: 1000;
+            background: #ffffff;
+            border: 1px solid #666;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+            border-radius: 3px;
+            display: none;
+            padding: 2px;
+        }
+        #user-hl-menu button {
+            display: block;
+            width: 100%;
+            padding: 5px 12px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        #user-hl-menu button:hover { background-color: #eee; }
+    </style>
+</head>
+<body>
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="fixed inset-0 bg-gray-200 z-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded shadow-lg max-w-xl w-full text-center border border-gray-300">
+            <h1 class="text-3xl font-bold text-red-600 mb-2">IELTS Academic Reading</h1>
+            <p class="text-gray-700 font-semibold mb-6">Official Computer-Based UI Simulation</p>
+            <div class="text-left bg-gray-50 border p-4 mb-6 text-sm text-gray-800 space-y-2">
+                <p><strong>Hướng dẫn làm bài:</strong></p>
+                <ol class="list-decimal pl-5 space-y-1">
+                    <li>Thời gian làm bài: 60 phút (3 Passages / 40 câu).</li>
+                    <li><strong>Highlight:</strong> Bạn có thể bôi đen bất kỳ đoạn văn bản nào trên màn hình để Highlight làm dấu.</li>
+                    <li>Không có bất kỳ đáp án hay gợi ý nào hiện ra trong lúc thi.</li>
+                    <li>Sau khi hoàn thành, bấm nút <strong>✓ (Submit)</strong> ở góc dưới bên phải để chấm điểm & kích hoạt chế độ xem **Answer Insight**.</li>
+                </ol>
+            </div>
+            <button id="start-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-8 rounded">Start Test</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP LAYOUT -->
+    <div class="app-layout">
+        
+        <!-- TOP HEADER -->
+        <header class="h-[46px] bg-white border-b border-gray-300 px-6 flex justify-between items-center shrink-0">
+            <div class="flex items-center gap-4">
+                <span class="text-red-600 font-black text-2xl tracking-tighter">IELTS</span>
+                <span class="text-xs font-bold text-gray-700 border-l border-gray-300 pl-4">Test taker ID</span>
+            </div>
+            <div class="flex items-center gap-5 text-gray-700">
+                <div id="timer-display" class="bg-black text-yellow-400 font-mono text-sm font-bold px-2.5 py-1 rounded">60:00</div>
+            </div>
+        </header>
+
+        <!-- SUB HEADER -->
+        <div class="h-[34px] bg-[#f2f2f2] border-b border-gray-300 px-6 flex items-center text-xs text-gray-800 shrink-0">
+            <span class="font-bold mr-1" id="sub-part-label">Part 1</span>
+            <span id="sub-part-desc">— Read the text and answer questions 1–13.</span>
+        </div>
+
+        <!-- SPLIT CONTENT PANEL -->
+        <div class="split-container" id="split-container">
+            <!-- Left: Passage -->
+            <div id="left-panel" class="w-1/2 scroll-panel border-r border-gray-200">
+                <div id="passage-content" class="text-sm leading-relaxed text-gray-900 space-y-4"></div>
+            </div>
+
+            <!-- Resizer -->
+            <div class="resizer" id="drag-resizer">
+                <div class="resizer-icon">↔</div>
+            </div>
+
+            <!-- Right: Questions -->
+            <div id="right-panel" class="w-1/2 scroll-panel relative">
+                <div id="questions-wrapper" class="pb-16"></div>
+
+                <!-- Navigation Arrows -->
+                <div class="fixed bottom-14 right-6 flex gap-1 z-30">
+                    <button onclick="navigateQuestion(-1)" class="w-10 h-10 bg-black text-white flex items-center justify-center rounded hover:bg-gray-800 font-bold text-lg">←</button>
+                    <button onclick="navigateQuestion(1)" class="w-10 h-10 bg-black text-white flex items-center justify-center rounded hover:bg-gray-800 font-bold text-lg">→</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER NAVIGATION BAR -->
+        <footer class="h-[46px] bg-[#e9e9e9] border-t border-gray-300 px-4 flex justify-between items-center shrink-0 z-40">
+            <div class="flex items-center gap-6 overflow-x-auto py-1 max-w-[90%]">
+                <div id="part-1-nav" class="flex items-center gap-1 shrink-0">
+                    <span class="font-bold text-xs mr-2 text-gray-800 cursor-pointer" onclick="switchPart(0)">Part 1</span>
+                    <div id="nav-btns-p1" class="flex items-center"></div>
+                </div>
+                <div class="h-4 w-[1px] bg-gray-400 shrink-0"></div>
+                <div id="part-2-nav" class="flex items-center gap-1 shrink-0">
+                    <span class="font-bold text-xs mr-2 text-gray-800 cursor-pointer" onclick="switchPart(1)">Part 2</span>
+                    <div id="nav-btns-p2" class="flex items-center"></div>
+                </div>
+                <div class="h-4 w-[1px] bg-gray-400 shrink-0"></div>
+                <div id="part-3-nav" class="flex items-center gap-1 shrink-0">
+                    <span class="font-bold text-xs mr-2 text-gray-800 cursor-pointer" onclick="switchPart(2)">Part 3</span>
+                    <div id="nav-btns-p3" class="flex items-center"></div>
+                </div>
+            </div>
+
+            <div class="shrink-0">
+                <button onclick="submitTest()" class="w-9 h-9 bg-black hover:bg-gray-800 text-white rounded flex items-center justify-center font-bold" title="Submit Test">
+                    ✓
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- USER HIGHLIGHT POPUP MENU -->
+    <div id="user-hl-menu">
+        <button id="btn-apply-hl" class="text-blue-700">Highlight</button>
+        <button id="btn-remove-hl" class="text-red-600">Clear</button>
+    </div>
+
+    <!-- RESULT SUMMARY SCREEN -->
+    <div id="result-screen" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-xl w-full p-8 text-center border border-gray-200">
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-2">Test Completed!</h2>
+            <p class="text-gray-600 text-sm mb-6">Kết quả làm bài thi IELTS Academic Reading của bạn.</p>
+
+            <div class="flex justify-center gap-6 my-6 text-center">
+                <div class="bg-blue-50 p-5 rounded-lg border border-blue-200 w-1/2">
+                    <span class="text-xs text-gray-600 font-bold block mb-1">RAW SCORE</span>
+                    <span id="res-score" class="text-4xl font-black text-blue-600">0 / 40</span>
+                </div>
+                <div class="bg-green-50 p-5 rounded-lg border border-green-200 w-1/2">
+                    <span class="text-xs text-gray-600 font-bold block mb-1">ACADEMIC BAND</span>
+                    <span id="res-band" class="text-4xl font-black text-green-600">0.0</span>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-col gap-3">
+                <button onclick="openAnswerInsight()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow flex items-center justify-center gap-2 text-base">
+                    🔍 Answer Insight (Xem vị trí đáp án chuẩn)
+                </button>
+                <button onclick="location.reload()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2.5 px-6 rounded-lg text-sm">
+                    Restart Test
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANSWER INSIGHT MODAL -->
+    <div id="insight-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col p-6">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    🔍 Answer Insight & Detailed Analysis
+                </h3>
+                <button onclick="closeInsightModal()" class="text-gray-500 hover:text-black font-bold text-xl">&times;</button>
+            </div>
+
+            <p class="text-xs text-gray-500 mb-3">* Bấm vào bất kỳ câu hỏi nào dưới đây để xem trực tiếp vị trí thông tin đáp án được Highlight trong bài đọc.</p>
+
+            <div class="overflow-y-auto flex-1">
+                <table class="w-full text-left text-sm border-collapse border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-2 border text-center">Q#</th>
+                            <th class="p-2 border">Your Answer</th>
+                            <th class="p-2 border">Official Answer</th>
+                            <th class="p-2 border text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="result-table-body"></tbody>
+                </table>
+            </div>
+
+            <div class="text-right mt-4 pt-3 border-t">
+                <button onclick="closeInsightModal()" class="bg-blue-600 text-white font-bold py-2 px-6 rounded hover:bg-blue-700">Xem Bài Đọc</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // BÀI ĐỌC SẠCH 100% - KHÔNG CHỨA BẤT KỲ GỢI Ý ĐÁP ÁN NÀO KHI LÀM BÀI
+        const testData = [
+            {
+                part: 1,
+                title: "The problems and benefits created by the spread of the water hyacinth in Kenya",
+                content: `
+                    <p>Water hyacinth (Eichhornia crassipes), an aquatic plant native to South America, first appeared in countries in Africa in the early 1900s. Scientists there called it the 'world's worst aquatic weed', after it spread from the southernmost tip of Africa in the early 1900s and started obstructing major dams and rivers.</p>
+                    <p>In east Africa, the plant arrived with Belgian colonists in Rwanda, who liked the look of its glossy leaves and delicate purple flowers floating in their ponds. But by the 1980s, it had 'escaped' out of the country via the Kagera river and made its way downstream to Lake Victoria. There, with no natural predators and perfect temperature conditions, the plant began spreading in the open water, blocking fishing routes and providing a new habitat for disease-carrying mosquitoes.</p>
+                    <p>For the women who smoke fish from the lake to sell it has meant declining income, as the boats that once brought the fish to shore by the hundreds struggle to navigate through the mass of plants. But water hyacinth isn't their only headache. In order to smoke the fish that they buy, they must gather huge quantities of firewood, sometimes walking as far as 10km each way to collect enough to complete their work. And each day as they cook, they breathe in the thick, grey smoke. About three out of four families in Kenya depend on wood or charcoal to cook their daily meals, and the rate is even higher in rural areas, Kenya's latest demographic and health survey shows. Using solid fuels like these for cooking increases indoor pollution. The World Health Organization estimates that about 14,300 Kenyans die annually as a result of indoor air pollution - most of which is caused by cooking and heating sources.</p>
+                    <p>Some years ago, on the shores of Lake Victoria, huge piles of water hyacinth that villagers had taken out of the water in an attempt to clear it were a common sight. But buried in those decaying waxy leaves was a renewable energy gold mine. It turns out the floating plant isn't just good at spreading - its foliage also contains a high ratio of carbon to nitrogen. It's a magic combination that has captivated researchers' imaginations since as early as the 1980s when, across the world, they began to explore its potential as a biofuel. Just about 4kg of the dried plant would be enough to cater for a large family's daily energy needs, early research predicted.</p>
+                    <p>In 2014, Nigerian academics announced they had got better yields of biofuel gas when they mixed the plant with chicken manure. A few years later, Kenyan scientists confirmed what their Nigerian peers and others had already found: manure worked to improve the process of converting the weed into gas.</p>
+                    <p>In 2018, the technology came to a village on the shore of Lake Victoria, called Dunga. The project promised a two-for-one solution to the dual menaces of the water hyacinth and dependence on firewood. The community received a pair of donated biogas digesters - machines that would transform a mix of water hyacinth and cow dung into biogas for cooking.</p>
+                    <p>The digesters work a bit like a stomach. The mixture goes in one end - think of it as a mouth - and over the next 20 to 30 days, it goes through a fermentation process and breaks down, giving off gas that comes out the other end. From there, the cleanburning gas is passed through pipes to the point of use, just like traditional domestic gas. In Dunga, the machines produce enough gas to serve about 60% of the village's population. It is used in domestic stoves and for other household tasks such as purifying water and incubating chicks.</p>
+                    <p>The project is testing whether biogas can provide an effective alternative to firewood and charcoal in rural Kenyan communities. Results indicate that the programme seems to be working. The women who smoke the lake fish are already getting sick less often. Besides, they don't have to devote a lot of time every day to gathering firewood, which is a great relief. As a result, they're able to make more money for their families from other enterprises.</p>
+                    <p>Kanyiva Muindi is an epidemiologist and air pollution research fellow at the African Population and Health Research Centre in Nairobi. She says families who switch to the smokeless cooking method could expect fewer respiratory diseases. Women, young girls and children are particularly vulnerable because they are the ones who cook in the kitchen or outside over fires.</p>
+                    <p>How much better the biogas stoves will be for the community's health still needs more research, says Dominic Kahumbu Wanjihia, Biogas International's chief executive. But unless the price of the machines drops, it's pretty clear that most communities will never be able to afford any, since they sell for about $750.</p>
+                `,
+                keyPhrases: {
+                    1: "the plant arrived with Belgian colonists in Rwanda, who liked the look of its glossy leaves and delicate purple flowers floating in their ponds",
+                    2: "blocking fishing routes",
+                    3: "the boats that once brought the fish to shore by the hundreds struggle to navigate through the mass of plants",
+                    6: "huge piles of water hyacinth that villagers had taken out of the water in an attempt to clear it were a common sight",
+                    7: "captivated researchers' imaginations since as early as the 1980s when, across the world, they began to explore its potential as a biofuel",
+                    8: "cow dung",
+                    9: "fermentation",
+                    10: "pipes",
+                    11: "they don't have to devote a lot of time every day to gathering firewood",
+                    12: "they're able to make more money for their families",
+                    13: "the price of the machines drops"
+                },
+                sections: [
+                    {
+                        type: "table",
+                        title: "Questions 1–7: Do the following statements agree with the information given in Reading Passage 1?",
+                        cols: ["TRUE", "FALSE", "NOT GIVEN"],
+                        items: [
+                            { id: 1, text: "Water hyacinth was introduced as a decorative plant in east Africa.", ans: "TRUE" },
+                            { id: 2, text: "Fishermen took some water hyacinth plants to Lake Victoria.", ans: "FALSE" },
+                            { id: 3, text: "It is now difficult to force boats through the thick water hyacinth on Lake Victoria.", ans: "TRUE" },
+                            { id: 4, text: "Chemicals produced by the water hyacinth plants are affecting the numbers of fish in Lake Victoria.", ans: "NOT GIVEN" },
+                            { id: 5, text: "Cooking with charcoal has been proved to be even worse for people's health than cooking with wood.", ans: "NOT GIVEN" },
+                            { id: 6, text: "People found it impossible to remove much water hyacinth from Lake Victoria.", ans: "FALSE" },
+                            { id: 7, text: "Scientists started investigating the possibility of using water hyacinth to generate biogas in the last century.", ans: "TRUE" }
+                        ]
+                    },
+                    {
+                        type: "gap_group",
+                        title: "Questions 8–10: Complete the flow-chart below (NO MORE THAN TWO WORDS).",
+                        items: [
+                            { id: 8, text: "First, place water hyacinth together with some ", suffix: " into a digester.", ans: "cow dung" },
+                            { id: 9, text: "Leave the mixture until the ", suffix: " is completed.", ans: "fermentation" },
+                            { id: 10, text: "Capture the gas emitted by the digester and use ", suffix: " to transport it to individual homes.", ans: "pipes" }
+                        ]
+                    },
+                    {
+                        type: "gap_group",
+                        title: "Questions 11–13: Complete the notes below (ONE WORD ONLY).",
+                        items: [
+                            { id: 11, text: "• no need for them to spend so much ", suffix: " collecting fuel.", ans: "time" },
+                            { id: 12, text: "• they can focus on different tasks that bring in ", suffix: ".", ans: "money" },
+                            { id: 13, text: "• the ", suffix: " of the digesters is beyond the reach of most villages.", ans: "price" }
+                        ]
+                    }
+                ]
+            },
+            {
+                part: 2,
+                title: "How could multilingualism benefit India's poorest schoolchildren?",
+                content: `
+                    <p>The crowded and bustling streets of Delhi teem with life. Stop to listen and, above the din of rickshaws and buses, you'll hear a multitude of languages, as more than 20 million people go about their daily lives. Many were born and raised here, and many millions more have recently made India's capital their home, having moved from surrounding neighbourhoods, cities and states or across the country, often in the hope of gaining better jobs and a better life.</p>
+                    <p>A team of researchers led by Professor Ianthi Tsimpli from the University of Cambridge is currently conducting a study on the multilingual abilities of primary school children in India. The overriding aim of the four-year project, called 'Multilingualism and Multiliteracy', is to find out why the cognitive advantages usually associated with speaking more than one language do not seem to apply to many of India's poorest schoolchildren.</p>
+                    <p>In many parts of Europe, multilingualism is linked with improved memory, better problem-solving skills, and greater cognitive flexibility. However, initial studies in India suggest a starkly different reality. In government-run schools catering to low-income communities, despite speaking two or three languages fluently, over 50% of children cannot read a basic sentence, and just under 50% cannot solve a simple subtraction problem by Primary Level 2.</p>
+                    <p>To investigate this paradox, Tsimpli and her colleagues are examining whether these poor educational outcomes could be caused by a disconnect between the language used in the classroom and the language spoken at home. In many Indian schools, medium of instruction is designated in English or standard regional dialects that differ significantly from the children's mother tongues.</p>
+                    <p>Furthermore, the research team intends to look not only at standardized test scores, but also directly at classroom dynamics and teaching methodologies to see how teachers handle linguistic diversity in daily practice.</p>
+                    <p>Professor Tsimpli points out that forcing English instruction upon children from underprivileged backgrounds without proper support may actually disadvantage them academically, as they end up mastering neither language sufficiently.</p>
+                    <p>However, when asked if English should be removed entirely from the curriculum, Tsimpli emphasizes that 'that ship has sailed'—English is far too deeply entrenched in the socio-economic framework of modern India.</p>
+                    <p>Interestingly, preliminary data revealed a surprising finding: children living in urban informal settlements (slums) did not lag behind children from other low-income urban backgrounds, and in some literacy measures, actually outperformed them.</p>
+                `,
+                keyPhrases: {
+                    14: "The crowded and bustling streets of Delhi teem with life",
+                    15: "Many were born and raised here, and many millions more have recently made India's capital their home",
+                    16: "surrounding neighbourhoods, cities and states",
+                    17: "gaining better jobs and a better life",
+                    18: "The overriding aim of the four-year project",
+                    19: "do not seem to apply to many of India's poorest schoolchildren",
+                    20: "over 50% of children cannot read a basic sentence, and just under 50% cannot solve a simple subtraction problem",
+                    22: "Tsimpli and her colleagues are examining whether these poor educational outcomes could be caused by a disconnect between the language used in the classroom and the language spoken at home",
+                    23: "the research team intends to look not only at standardized test scores, but also directly at classroom dynamics and teaching methodologies",
+                    24: "forcing English instruction upon children from underprivileged backgrounds without proper support may actually disadvantage them academically",
+                    25: "that ship has sailed",
+                    26: "children living in urban informal settlements (slums) did not lag behind children from other low-income urban backgrounds"
+                },
+                sections: [
+                    {
+                        type: "drag_matching",
+                        title: "Questions 14–19: Drag the correct letter A–J into the box.",
+                        options: [
+                            { letter: "A", text: "basic outlook" },
+                            { letter: "B", text: "employment opportunities" },
+                            { letter: "C", text: "wealthy visitors" },
+                            { letter: "D", text: "distant country" },
+                            { letter: "E", text: "primary objective" },
+                            { letter: "F", text: "similar advantages" },
+                            { letter: "G", text: "thriving economy" },
+                            { letter: "H", text: "nearby district" },
+                            { letter: "I", text: "dense population" },
+                            { letter: "J", text: "new immigrants" }
+                        ],
+                        items: [
+                            { id: 14, prefix: "The city of Delhi has a ", suffix: " and as you walk through its streets you hear people speaking a variety of languages.", ans: "I" },
+                            { id: 15, prefix: "Some of them have spent their entire life in Delhi, while others are ", suffix: ".", ans: "J" },
+                            { id: 16, prefix: "Whether they have come from a ", suffix: " or have travelled from the other side of India...", ans: "H" },
+                            { id: 17, prefix: "...they have all come in search of things such as improved ", suffix: ".", ans: "B" },
+                            { id: 18, prefix: "The ", suffix: " of the research is to discover why multilingual Indian schoolchildren...", ans: "E" },
+                            { id: 19, prefix: "...do not experience ", suffix: " to those that multilingual schoolchildren in Europe experience.", ans: "F" }
+                        ]
+                    },
+                    {
+                        type: "table",
+                        title: "Questions 20–23: Do the following statements agree with the claims of the writer?",
+                        cols: ["YES", "NO", "NOT GIVEN"],
+                        items: [
+                            { id: 20, text: "Ten-year-old Indian schoolchildren tend to perform better in literacy tests than in numeracy tests.", ans: "NO" },
+                            { id: 21, text: "Tsimpli had problems convincing some female students to take part in the study.", ans: "NOT GIVEN" },
+                            { id: 22, text: "Tsimpli and her team wanted to know if there is a connection between poor academic performance and being taught in an unfamiliar language.", ans: "YES" },
+                            { id: 23, text: "The researchers have decided against investigating the impact teaching methodology may have on learning outcomes.", ans: "NO" }
+                        ]
+                    },
+                    {
+                        type: "grid_matching",
+                        title: "Questions 24–26: Choose the correct letter, A, B, C or D.",
+                        cols: ["A", "B", "C", "D"],
+                        items: [
+                            { id: 24, text: "What point does the writer make about primary schools in India in the sixth paragraph?", ans: "C" },
+                            { id: 25, text: "What is Tsimpli suggesting when she uses the phrase 'that ship has sailed'?", ans: "D" },
+                            { id: 26, text: "In the eighth paragraph, what do we learn has surprised researchers?", ans: "D" }
+                        ],
+                        legendTitle: "Options Legend",
+                        legends: [
+                            { letter: "A", text: "Exposure to English outside of school is limited" },
+                            { letter: "B", text: "Children learn English easily when motivated" },
+                            { letter: "C", text: "Poor children may be disadvantaged by English instruction" },
+                            { letter: "D", text: "Too late to remove English completely as medium of instruction" }
+                        ]
+                    }
+                ]
+            },
+            {
+                part: 3,
+                title: "The Globemakers: The Curious Story of an Ancient Craft",
+                content: `
+                    <p>When Peter Bellerby decided to make a model globe as an 80th birthday gift for his father, it triggered an almost obsessive, decade-long quest to master the delicate art of traditional globemaking.</p>
+                    <p>This journey was defined by a series of monumental obstacles that would have deterred almost anyone less determined. He quickly discovered that obtaining a high-quality spherical globe was not simply a matter of placing a quick online order.</p>
+                    <p>Commercial markets offered mostly cheap, poorly rendered plastic spheres designed for school classrooms, while genuine antique globes at prestigious auction houses were prohibitively expensive and wildly beyond his budget.</p>
+                    <p>Determined to learn the craft himself, Bellerby travelled to countries like Morocco and India, expecting to find artisan cartographers, but drew a complete blank.</p>
+                    <p>Contrary to stubbornly held popular beliefs about our ancestors' geographical ignorance, scholars and astronomers have known that the Earth is spherical since at least the 6th century BCE. Ancient Greek thinkers like Pythagoras and Aristotle provided clear physical proofs.</p>
+                    <p>Before embarking on his journey, Bellerby had naively reasoned that finding a well-crafted physical globe in modern times would be a straightforward task.</p>
+                    <p>During his early manufacturing trials, Bellerby faced immense technical hurdles. Right at the end of pasting paper gores onto a sphere, he realized the damp paper stretched by fractions of a millimeter, causing the final seam to overlap incorrectly.</p>
+                    <p>In writing about historical cartographers, Bellerby clearly felt a deep connection and kindred spirit with 15th-century pioneer Martin Behaim.</p>
+                    <p>Bellerby's memoir functions not only as a personal history, but also as a passionate lament for the tragic fading away of centuries-old artisan techniques.</p>
+                    <p>Ultimately, reviewers note that while inspiring, Bellerby's book is hardly a blueprint or practical guide for commercial business success.</p>
+                `,
+                keyPhrases: {
+                    27: "When Peter Bellerby decided to make a model globe as an 80th birthday gift for his father, it triggered an almost obsessive, decade-long quest",
+                    28: "This journey was defined by a series of monumental obstacles that would have deterred almost anyone less determined",
+                    29: "He quickly discovered that obtaining a high-quality spherical globe was not simply a matter of placing a quick online order",
+                    30: "Commercial markets offered mostly cheap, poorly rendered plastic spheres designed for school classrooms",
+                    31: "while genuine antique globes at prestigious auction houses were prohibitively expensive and wildly beyond his budget",
+                    32: "Determined to learn the craft himself, Bellerby travelled to countries like Morocco and India, expecting to find artisan cartographers, but drew a complete blank",
+                    33: "Contrary to stubbornly held popular beliefs about our ancestors' geographical ignorance, scholars and astronomers have known that the Earth is spherical",
+                    36: "Before embarking on his journey, Bellerby had naively reasoned that finding a well-crafted physical globe in modern times would be a straightforward task",
+                    37: "During his early manufacturing trials, Bellerby faced immense technical hurdles",
+                    38: "In writing about historical cartographers, Bellerby clearly felt a deep connection and kindred spirit with 15th-century pioneer Martin Behaim",
+                    39: "Bellerby's memoir functions not only as a personal history, but also as a passionate lament for the tragic fading away of centuries-old artisan techniques",
+                    40: "Ultimately, reviewers note that while inspiring, Bellerby's book is hardly a blueprint or practical guide for commercial business success"
+                },
+                sections: [
+                    {
+                        type: "table",
+                        title: "Questions 27–32: Choose the correct letter, A–J.",
+                        cols: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+                        items: [
+                            { id: 27, text: "Peter Bellerby's plan to give his father a globe for his birthday was an unexpectedly...", ans: "G" },
+                            { id: 28, text: "...for which he had to overcome...", ans: "J" },
+                            { id: 29, text: "He soon learnt that a straightforward...", ans: "I" },
+                            { id: 30, text: "Some ... that had been intended for...", ans: "C" },
+                            { id: 31, text: "...educational use were available, as were expensive antiques.", ans: "A" },
+                            { id: 32, text: "He travelled to places where people might still have the ... but could not find what he wanted.", ans: "E" }
+                        ]
+                    },
+                    {
+                        type: "table",
+                        title: "Questions 33–36: Do the following statements agree with the claims of the writer?",
+                        cols: ["YES", "NO", "NOT GIVEN"],
+                        items: [
+                            { id: 33, text: "The assumption today that people in the past knew very little about geography is correct.", ans: "NO" },
+                            { id: 34, text: "Plato was criticised for saying the world was shaped like a leather ball.", ans: "NOT GIVEN" },
+                            { id: 35, text: "The globe made by Crates of Mallus was an accurate representation of the known world.", ans: "NOT GIVEN" },
+                            { id: 36, text: "Bellerby assumed he would have few problems locating a well-made globe.", ans: "YES" }
+                        ]
+                    },
+                    {
+                        type: "grid_matching",
+                        title: "Questions 37–40: Choose the correct letter, A, B, C or D.",
+                        cols: ["A", "B", "C", "D"],
+                        items: [
+                            { id: 37, text: "When Bellerby had to attach the gores to the globe surface", ans: "B" },
+                            { id: 38, text: "The reviewer mentions other globe makers of the past because", ans: "C" },
+                            { id: 39, text: "What point is made about Bellerby in the seventh paragraph?", ans: "D" },
+                            { id: 40, text: "What does the reviewer say about Bellerby's book in the final paragraph?", ans: "A" }
+                        ],
+                        legendTitle: "Options Legend",
+                        legends: [
+                            { letter: "A", text: "Does not tell how to create a profitable business" },
+                            { letter: "B", text: "Became aware of an unexpected issue" },
+                            { letter: "C", text: "Bellerby had something in common with each" },
+                            { letter: "D", text: "Regrets the loss of many globe-making skills" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        let currentPartIndex = 0;
+        let activeQuestionId = 1;
+        let userAnswers = {};
+        let timerSeconds = 3600;
+        let timerInterval = null;
+
+        document.getElementById('start-btn').onclick = () => {
+            document.getElementById('start-screen').classList.add('hidden');
+            initTest();
+        };
+
+        function initTest() {
+            renderAllFooterButtons();
+            renderPart(currentPartIndex);
+            startTimer();
+            setupResizer();
+            setupUserHighlighting();
+        }
+
+        function switchPart(index) {
+            currentPartIndex = index;
+            renderPart(index);
+        }
+
+        function renderPart(index) {
+            const partData = testData[index];
+            
+            let allPartQs = [];
+            partData.sections.forEach(s => {
+                if(s.items) s.items.forEach(i => allPartQs.push(i.id));
+            });
+            const firstQ = Math.min(...allPartQs);
+            const lastQ = Math.max(...allPartQs);
+
+            document.getElementById('sub-part-label').innerText = `Part ${partData.part}`;
+            document.getElementById('sub-part-desc').innerText = `— Read the text and answer questions ${firstQ}–${lastQ}.`;
+
+            document.getElementById('passage-content').innerHTML = `
+                <h3 class="text-base font-bold mb-3">${partData.title}</h3>
+                ${partData.content}
+            `;
+
+            const qWrapper = document.getElementById('questions-wrapper');
+            qWrapper.innerHTML = '';
+
+            partData.sections.forEach(sec => {
+                const secDiv = document.createElement('div');
+                secDiv.className = "mb-8";
+
+                let html = `<h4 class="font-bold text-gray-800 border-b border-gray-300 pb-2 mb-4">${sec.title}</h4>`;
+
+                if (sec.type === 'table') {
+                    html += `<table class="ielts-table"><thead><tr><th class="text-left bg-gray-50">Question</th>`;
+                    sec.cols.forEach(c => html += `<th>${c}</th>`);
+                    html += `</tr></thead><tbody>`;
+
+                    sec.items.forEach(item => {
+                        html += `<tr id="q-box-${item.id}">
+                            <td class="q-text-cell">
+                                <span class="q-number-box">${item.id}</span>
+                                <span>${item.text}</span>
+                            </td>`;
+                        
+                        sec.cols.forEach(col => {
+                            const isChecked = userAnswers[item.id] === col ? 'checked' : '';
+                            html += `<td class="radio-cell">
+                                <input type="radio" name="table_q_${item.id}" value="${col}" ${isChecked} onchange="saveAnswer(${item.id}, '${col}')" onclick="setActiveQ(${item.id})">
+                            </td>`;
+                        });
+                        html += `</tr>`;
+                    });
+                    html += `</tbody></table>`;
+                } 
+                else if (sec.type === 'grid_matching') {
+                    html += `<table class="ielts-table mb-6"><thead><tr><th class="text-left bg-gray-50"></th>`;
+                    sec.cols.forEach(c => html += `<th>${c}</th>`);
+                    html += `</tr></thead><tbody>`;
+
+                    sec.items.forEach(item => {
+                        html += `<tr id="q-box-${item.id}">
+                            <td class="q-text-cell">
+                                <span class="q-number-box">${item.id}</span>
+                                <span class="font-normal">${item.text}</span>
+                            </td>`;
+                        
+                        sec.cols.forEach(col => {
+                            const isChecked = userAnswers[item.id] === col ? 'checked' : '';
+                            html += `<td class="radio-cell">
+                                <input type="radio" name="grid_q_${item.id}" value="${col}" ${isChecked} onchange="saveAnswer(${item.id}, '${col}')" onclick="setActiveQ(${item.id})">
+                            </td>`;
+                        });
+                        html += `</tr>`;
+                    });
+                    html += `</tbody></table>`;
+
+                    if (sec.legends) {
+                        html += `<div class="mt-4 border border-black rounded p-3 bg-white max-w-md">
+                            <h5 class="font-bold text-sm mb-2 border-b pb-1">${sec.legendTitle || 'Legend'}</h5>
+                            <table class="w-full text-sm">`;
+                        sec.legends.forEach(lg => {
+                            html += `<tr>
+                                <td class="font-bold border-r pr-3 py-1 text-center w-8">${lg.letter}</td>
+                                <td class="pl-3 py-1">${lg.text}</td>
+                            </tr>`;
+                        });
+                        html += `</table></div>`;
+                    }
+                }
+                else if (sec.type === 'gap_group') {
+                    sec.items.forEach(item => {
+                        html += `<div id="q-box-${item.id}" class="my-4 p-3 bg-gray-50 border rounded text-sm leading-loose">
+                            <span class="q-number-box">${item.id}</span>
+                            ${item.text}
+                            <input type="text" class="border border-black px-2 py-1 mx-1 w-36 font-bold text-center bg-white" value="${userAnswers[item.id] || ''}" oninput="saveAnswer(${item.id}, this.value)" onclick="setActiveQ(${item.id})">
+                            ${item.suffix || ''}
+                        </div>`;
+                    });
+                }
+                else if (sec.type === 'drag_matching') {
+                    html += `<div class="drag-options-box" id="drag-bank-${sec.items[0].id}">`;
+                    sec.options.forEach(opt => {
+                        html += `<div class="drag-item" draggable="true" ondragstart="drag(event)" id="opt-${opt.letter}"><strong>${opt.letter}</strong>: ${opt.text}</div>`;
+                    });
+                    html += `</div>`;
+
+                    sec.items.forEach(item => {
+                        const val = userAnswers[item.id] || '';
+                        html += `<div id="q-box-${item.id}" class="my-4 p-3 bg-gray-50 border rounded text-sm flex items-center gap-2">
+                            <span class="q-number-box">${item.id}</span>
+                            <span>${item.prefix}</span>
+                            <div class="drop-zone ${val ? 'has-item' : ''}" ondrop="drop(event, ${item.id})" ondragover="allowDrop(event)">
+                                ${val ? `<div class="drag-item" draggable="true" ondragstart="drag(event)" id="placed-${item.id}">${val}</div>` : ''}
+                            </div>
+                            <span>${item.suffix}</span>
+                        </div>`;
+                    });
+                }
+
+                secDiv.innerHTML = html;
+                qWrapper.appendChild(secDiv);
+            });
+
+            setActiveQ(firstQ);
+        }
+
+        function allowDrop(ev) { ev.preventDefault(); }
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.innerText.split(':')[0].trim());
+        }
+        function drop(ev, qId) {
+            ev.preventDefault();
+            let letter = ev.dataTransfer.getData("text");
+            if (letter.length > 2) letter = letter.substring(0, 1);
+            saveAnswer(qId, letter);
+            renderPart(currentPartIndex);
+        }
+
+        function renderAllFooterButtons() {
+            testData.forEach((part, pIdx) => {
+                const navContainer = document.getElementById(`nav-btns-p${pIdx + 1}`);
+                navContainer.innerHTML = '';
+                let allPartQs = [];
+                part.sections.forEach(s => s.items.forEach(i => allPartQs.push(i.id)));
+
+                allPartQs.forEach(qId => {
+                    const btn = document.createElement('button');
+                    btn.id = `footer-btn-${qId}`;
+                    btn.className = `footer-q-num ${userAnswers[qId] ? 'answered' : ''}`;
+                    btn.innerText = qId;
+                    btn.onclick = () => {
+                        if (currentPartIndex !== pIdx) switchPart(pIdx);
+                        setActiveQ(qId);
+                    };
+                    navContainer.appendChild(btn);
+                });
+            });
+        }
+
+        function saveAnswer(qId, val) {
+            if (val && val.trim() !== '') {
+                userAnswers[qId] = val;
+            } else {
+                delete userAnswers[qId];
+            }
+            updateFooterButtonStatus(qId);
+        }
+
+        function updateFooterButtonStatus(qId) {
+            const btn = document.getElementById(`footer-btn-${qId}`);
+            if (!btn) return;
+            if (userAnswers[qId] && userAnswers[qId].trim() !== '') {
+                btn.classList.add('answered');
+            } else {
+                btn.classList.remove('answered');
+            }
+        }
+
+        function setActiveQ(qId) {
+            activeQuestionId = qId;
+            document.querySelectorAll('.footer-q-num').forEach(b => b.classList.remove('active'));
+
+            const activeBtn = document.getElementById(`footer-btn-${qId}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const target = document.getElementById(`q-box-${qId}`);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function navigateQuestion(step) {
+            let nextQ = activeQuestionId + step;
+            if (nextQ < 1) nextQ = 1;
+            if (nextQ > 40) nextQ = 40;
+
+            let targetPart = 0;
+            if (nextQ >= 14 && nextQ <= 26) targetPart = 1;
+            if (nextQ >= 27) targetPart = 2;
+
+            if (targetPart !== currentPartIndex) switchPart(targetPart);
+            setActiveQ(nextQ);
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time has expired!");
+                    submitTest();
+                }
+                const m = Math.floor(timerSeconds / 60);
+                const s = timerSeconds % 60;
+                document.getElementById('timer-display').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function setupResizer() {
+            const resizer = document.getElementById('drag-resizer');
+            const leftPanel = document.getElementById('left-panel');
+            const rightPanel = document.getElementById('right-panel');
+            const container = document.getElementById('split-container');
+            let isDragging = false;
+
+            resizer.addEventListener('mousedown', () => isDragging = true);
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const rect = container.getBoundingClientRect();
+                let pct = ((e.clientX - rect.left) / rect.width) * 100;
+                if (pct > 20 && pct < 80) {
+                    leftPanel.style.width = `${pct}%`;
+                    rightPanel.style.width = `${100 - pct}%`;
+                }
+            });
+            document.addEventListener('mouseup', () => isDragging = false);
+        }
+
+        /* HIGHLIGHT TỰ DO CỦA USER KHI LÀM BÀI */
+        function setupUserHighlighting() {
+            const menu = document.getElementById('user-hl-menu');
+            let selectedRange = null;
+
+            document.addEventListener('mouseup', (e) => {
+                const sel = window.getSelection();
+                if (sel && sel.toString().trim().length > 0) {
+                    selectedRange = sel.getRangeAt(0);
+                    menu.style.left = `${e.pageX}px`;
+                    menu.style.top = `${e.pageY - 35}px`;
+                    menu.style.display = 'block';
+                } else if (!e.target.closest('#user-hl-menu')) {
+                    menu.style.display = 'none';
+                }
+            });
+
+            document.getElementById('btn-apply-hl').onclick = () => {
+                if (selectedRange) {
+                    const span = document.createElement('span');
+                    span.className = 'user-highlight';
+                    selectedRange.surroundContents(span);
+                }
+                menu.style.display = 'none';
+            };
+
+            document.getElementById('btn-remove-hl').onclick = () => {
+                menu.style.display = 'none';
+            };
+        }
+
+        function calculateAcademicBand(score) {
+            if (score >= 39) return "9.0";
+            if (score >= 37) return "8.5";
+            if (score >= 35) return "8.0";
+            if (score >= 33) return "7.5";
+            if (score >= 30) return "7.0";
+            if (score >= 27) return "6.5";
+            if (score >= 23) return "6.0";
+            if (score >= 20) return "5.5";
+            if (score >= 16) return "5.0";
+            if (score >= 13) return "4.5";
+            if (score >= 10) return "4.0";
+            if (score >= 6)  return "3.5";
+            return "3.0";
+        }
+
+        function submitTest() {
+            if (!confirm("Are you sure you want to finish and submit your test?")) return;
+
+            clearInterval(timerInterval);
+            let score = 0;
+            const tbody = document.getElementById('result-table-body');
+            tbody.innerHTML = '';
+
+            let allItems = [];
+            testData.forEach(p => p.sections.forEach(s => allItems.push(...s.items)));
+
+            allItems.sort((a, b) => a.id - b.id).forEach(item => {
+                const userAns = (userAnswers[item.id] || '').trim();
+                const correctAns = item.ans.trim();
+                const isCorrect = userAns.toLowerCase() === correctAns.toLowerCase();
+                if (isCorrect) score++;
+
+                const tr = document.createElement('tr');
+                tr.className = `${isCorrect ? 'bg-green-50' : 'bg-red-50'} cursor-pointer hover:bg-gray-200`;
+                tr.onclick = () => {
+                    closeInsightModal();
+                    highlightAnswerLocation(item.id);
+                };
+                tr.innerHTML = `
+                    <td class="p-2 border font-bold text-center">${item.id}</td>
+                    <td class="p-2 border">${userAns || '<i class="text-gray-400">Empty</i>'}</td>
+                    <td class="p-2 border font-semibold text-blue-800">${correctAns}</td>
+                    <td class="p-2 border text-center font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'}">${isCorrect ? '✓ Correct' : '✗ Incorrect'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('res-score').innerText = `${score} / 40`;
+            document.getElementById('res-band').innerText = calculateAcademicBand(score);
+            document.getElementById('result-screen').classList.remove('hidden');
+        }
+
+        function openAnswerInsight() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('insight-modal').classList.remove('hidden');
+        }
+
+        function closeInsightModal() {
+            document.getElementById('insight-modal').classList.add('hidden');
+        }
+
+        /* HIGHLIGHT TỰ ĐỘNG VỊ TRÍ ĐÁP ÁN KHI NGƯỜI DÙNG CLICK XEM CHI TIẾT KẾT QUẢ */
+        function highlightAnswerLocation(qId) {
+            let targetPart = 0;
+            if (qId >= 14 && qId <= 26) targetPart = 1;
+            if (qId >= 27) targetPart = 2;
+
+            if (currentPartIndex !== targetPart) {
+                switchPart(targetPart);
+            }
+
+            const pData = testData[targetPart];
+            const phrase = pData.keyPhrases ? pData.keyPhrases[qId] : null;
+
+            if (!phrase) {
+                alert(`Câu ${qId} không có vị trí trích dẫn cụ thể (Not Given hoặc dạng bài tổng hợp).`);
+                return;
+            }
+
+            const passageDiv = document.getElementById('passage-content');
+            let contentHTML = passageDiv.innerHTML;
+
+            // Xóa highlight cũ nếu có
+            contentHTML = contentHTML.replace(/<mark class="insight-target">([^<]+)<\/mark>/g, '$1');
+
+            if (contentHTML.includes(phrase)) {
+                contentHTML = contentHTML.replace(phrase, `<mark id="target-q-${qId}" class="insight-target">[Q${qId}] ${phrase}</mark>`);
+                passageDiv.innerHTML = contentHTML;
+
+                setTimeout(() => {
+                    const elem = document.getElementById(`target-q-${qId}`);
+                    if (elem) {
+                        elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+            }
+        }
+    </script>
+</body>
+</html>
